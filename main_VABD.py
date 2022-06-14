@@ -213,14 +213,18 @@ def escribirCondiciones():
 
 
 def leerCondiciones():
-    reload(fe)
-    if type(fe.cond_input(0, 0)) is tuple:
-        cond = lambda a, b: fe.cond_input(a, b)[0]
-        cond2 = lambda a, b: fe.cond_input(a, b)[1]
-    else:
-        cond = fe.cond_input
-        cond2 = None
-    return cond, cond2
+    try:
+        reload(fe)
+        if type(fe.cond_input(0, 0)) is tuple:
+            cond = lambda a, b: fe.cond_input(a, b)[0]
+            cond2 = lambda a, b: fe.cond_input(a, b)[1]
+        else:
+            cond = fe.cond_input
+            cond2 = None
+        return cond, cond2
+    except SyntaxError or NameError:
+        print("ERROR: ingrese nuevamente la condicion")
+        return None, None
 
 
 def main():
@@ -286,9 +290,10 @@ def main():
             else:
                 print("X e Y NO son independientes")
         elif op == 6:
-           str_cond = escribirCondiciones()
-           cond, cond2 = leerCondiciones()
-           print(f"\nP({str_cond}) =", probCond(pxy, rx, ry, cond, cond2))
+            str_cond = escribirCondiciones()
+            cond, cond2 = leerCondiciones()
+            if cond is not None:
+                print(f"\nP({str_cond}) =", probCond(pxy, rx, ry, cond, cond2))
 
 
 main()
