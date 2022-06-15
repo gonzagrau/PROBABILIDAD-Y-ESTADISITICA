@@ -189,8 +189,12 @@ def probCond(mat, rx, ry, cond, cond2=None):
     acum = 0
     for i in range(len(mat)):
         for j in range(len(mat[0])):
-            if cond(rx[j], ry[i]):
-                acum += mat[i][j]
+            try:
+                if cond(rx[j], ry[i]):
+                    acum += mat[i][j]
+            except Exception:
+                print("Hubo un error en el calculo de la probabilidad, chequee la condicion")
+                return None
     return round(acum, 3)
 
 
@@ -206,32 +210,30 @@ def escribirCondiciones():
     str_cond = input("Ingrese la condicion para X e Y en formato Python, usando '|' P(A|B): ")
     str_cond = str_cond.replace('|', ',')
     lineas = ['def cond_input(X, Y):\n', f"    return {str_cond}"]
-    arch_funcion_esp = open("funcion_especial.py", "w")
-    arch_funcion_esp.writelines(lineas)
-    arch_funcion_esp.close()
+    with open("funcion_especial.py", "w") as arch_funcion_esp:
+        arch_funcion_esp.writelines(lineas)
     return str_cond.replace(',', '|')
 
 
 def reiniciarFuncEspecial():
     lineas = ['def cond_input(X, Y):\n', f"    return None"]
-    arch_funcion_esp = open("funcion_especial.py", "w")
-    arch_funcion_esp.writelines(lineas)
-    arch_funcion_esp.close()
+    with open("funcion_especial.py", "w") as arch_funcion_esp:
+        arch_funcion_esp.writelines(lineas)
 
 
 def leerCondiciones():
     try:
         reload(fe)
-        if type(fe.cond_input(0, 0)) is tuple:
+        if type(fe.cond_input(1, 1)) is tuple:
             cond = lambda a, b: fe.cond_input(a, b)[0]
             cond2 = lambda a, b: fe.cond_input(a, b)[1]
         else:
             cond = fe.cond_input
             cond2 = None
         return cond, cond2
-    except (SyntaxError, NameError, ValueError):
+    except (SyntaxError, NameError, ValueError, TypeError):
         print("ERROR: ingrese nuevamente la condicion")
-        return None, None
+        return False, False
 
 
 def main():
@@ -299,7 +301,7 @@ def main():
         elif op == 6:
             str_cond = escribirCondiciones()
             cond, cond2 = leerCondiciones()
-            if cond is not None:
+            if cond:
                 print(f"\nP({str_cond}) =", probCond(pxy, rx, ry, cond, cond2))
             reiniciarFuncEspecial()
 
