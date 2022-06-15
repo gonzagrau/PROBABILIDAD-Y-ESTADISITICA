@@ -212,6 +212,13 @@ def escribirCondiciones():
     return str_cond.replace(',', '|')
 
 
+def reiniciarFuncEspecial():
+    lineas = ['def cond_input(X, Y):\n', f"    return None"]
+    arch_funcion_esp = open("funcion_especial.py", "w")
+    arch_funcion_esp.writelines(lineas)
+    arch_funcion_esp.close()
+
+
 def leerCondiciones():
     try:
         reload(fe)
@@ -222,7 +229,7 @@ def leerCondiciones():
             cond = fe.cond_input
             cond2 = None
         return cond, cond2
-    except SyntaxError or NameError:
+    except (SyntaxError, NameError, ValueError):
         print("ERROR: ingrese nuevamente la condicion")
         return None, None
 
@@ -294,6 +301,7 @@ def main():
             cond, cond2 = leerCondiciones()
             if cond is not None:
                 print(f"\nP({str_cond}) =", probCond(pxy, rx, ry, cond, cond2))
+            reiniciarFuncEspecial()
 
 
 main()
